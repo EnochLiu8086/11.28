@@ -9,11 +9,9 @@ Output:
 from __future__ import annotations
 
 import json
-import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -51,9 +49,9 @@ def load_causal_model(model_id: str) -> tuple[AutoTokenizer, AutoModelForCausalL
 def generate_responses(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
-    prompts: List[str],
+    prompts: list[str],
     max_new_tokens: int = 200,
-) -> List[dict]:
+) -> list[dict]:
     device = next(model.parameters()).device
     results = []
     for prompt in prompts:
@@ -96,8 +94,8 @@ def format_guard_prompt(user_text: str) -> str:
 def run_guard_checks(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
-    user_inputs: List[str],
-) -> List[dict]:
+    user_inputs: list[str],
+) -> list[dict]:
     device = next(model.parameters()).device
     outputs = []
     for text in user_inputs:
@@ -123,15 +121,15 @@ class TestPayload:
     timestamp: str
     inference_model: str
     safety_model: str
-    generations: List[dict]
-    safety_checks: List[dict]
+    generations: list[dict]
+    safety_checks: list[dict]
     test_type: str = "english_prompt_reasoning_test"
 
 
 def main() -> None:
     # Load main LLM and run inference tests with English prompts
     llm_tokenizer, llm_model = load_causal_model(LLM_ID)
-    
+
     # English prompts targeting different reasoning capabilities
     inference_prompts = [
         "Explain the difference between quantum computing and classical computing in 3-4 sentences, focusing on how they process information.",
@@ -143,7 +141,7 @@ def main() -> None:
         "Create a logical argument for or against the implementation of a universal basic income in a developed country.",
         "Predict how artificial intelligence might transform the healthcare industry in the next 10 years, including both benefits and risks."
     ]
-    
+
     generations = generate_responses(llm_tokenizer, llm_model, inference_prompts)
 
     # Free memory before loading guard model

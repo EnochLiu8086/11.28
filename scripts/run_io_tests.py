@@ -104,18 +104,18 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
                 if item.is_dir() and (item / "config.json").exists():
                     print(f"[模型路径] ✓ 在父目录中找到模型: {item}")
                     return str(item)
-    
+
     # 否则使用HuggingFace ID
     print(f"[模型路径] ✗ 本地路径不存在，将使用HuggingFace ID: {model_id}")
     print(f"  提示: 请确保模型已挂载到 {container_path} 或 {workspace_path} 或 {local_path}")
-    print(f"  或者设置环境变量 LLM_CONTAINER_PATH 和 GUARD_CONTAINER_PATH")
+    print("  或者设置环境变量 LLM_CONTAINER_PATH 和 GUARD_CONTAINER_PATH")
     return model_id
 
 
 def load_causal_model(model_id: str, local_path: str = "", container_path: str = "", workspace_path: str = "") -> tuple[AutoTokenizer, AutoModelForCausalLM]:
     """
     加载因果语言模型
-    
+
     Args:
         model_id: HuggingFace模型ID（作为fallback）
         local_path: Windows本地路径（F盘）
@@ -123,13 +123,13 @@ def load_causal_model(model_id: str, local_path: str = "", container_path: str =
         workspace_path: Docker容器内备用路径
     """
     torch_dtype = resolve_dtype()
-    
+
     # 确定实际使用的模型路径
     actual_path = get_model_path(model_id, local_path, container_path, workspace_path) if (local_path or container_path) else model_id
-    
+
     print(f"[加载模型] 使用路径: {actual_path}")
     print(f"[加载模型] 数据类型: {torch_dtype}")
-    
+
     # 修复deprecation警告：使用dtype代替torch_dtype
     tokenizer = AutoTokenizer.from_pretrained(actual_path)
     if tokenizer.pad_token is None:
@@ -221,8 +221,8 @@ class TestPayload:
 
 def main() -> None:
     llm_tokenizer, llm_model = load_causal_model(
-        LLM_ID, 
-        local_path=LLM_LOCAL_PATH, 
+        LLM_ID,
+        local_path=LLM_LOCAL_PATH,
         container_path=LLM_CONTAINER_PATH,
         workspace_path=LLM_WORKSPACE_PATH
     )

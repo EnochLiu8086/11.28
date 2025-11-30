@@ -4,7 +4,7 @@ pytest 配置和共享 fixtures
 
 import os
 import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 
 
 @pytest.fixture(autouse=True)
