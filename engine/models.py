@@ -10,7 +10,7 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -106,7 +106,7 @@ class ModelManager:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def load_llm(self) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
+    def load_llm(self) -> tuple[AutoTokenizer, AutoModelForCausalLM]:
         """加载推理模型（懒加载）"""
         if self._llm_tokenizer is None or self._llm_model is None:
             torch_dtype = resolve_dtype()
@@ -133,7 +133,7 @@ class ModelManager:
             print("[ModelManager] LLM loaded successfully")
         return self._llm_tokenizer, self._llm_model
 
-    def load_guard(self) -> Tuple[AutoTokenizer, AutoModelForCausalLM]:
+    def load_guard(self) -> tuple[AutoTokenizer, AutoModelForCausalLM]:
         """加载 Guard 模型（懒加载）"""
         if self._guard_tokenizer is None or self._guard_model is None:
             torch_dtype = resolve_dtype()
@@ -170,7 +170,7 @@ class ModelManager:
         top_k: int = 50,
         repetition_penalty: float = 1.1,
         stop_sequences: list[str] | None = None,
-    ) -> Tuple[str, int, int, float]:
+    ) -> tuple[str, int, int, float]:
         """
         生成文本
 
