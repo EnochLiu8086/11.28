@@ -43,13 +43,13 @@ def resolve_dtype() -> torch.dtype:
 def get_model_path(model_id: str, local_path: str, container_path: str, workspace_path: str = "") -> str:
     """
     获取模型路径：优先使用本地路径，如果不存在则使用HuggingFace ID
-    
+
     Args:
         model_id: HuggingFace模型ID
         local_path: Windows本地路径（F盘）
         container_path: Docker容器内路径（主要）
         workspace_path: Docker容器内备用路径
-    
+
     Returns:
         模型路径（本地路径、容器路径或HuggingFace ID）
     """
