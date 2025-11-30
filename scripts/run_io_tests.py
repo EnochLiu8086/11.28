@@ -15,7 +15,6 @@ import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -49,13 +48,13 @@ def resolve_dtype() -> torch.dtype:
 def get_model_path(model_id: str, local_path: str, container_path: str, workspace_path: str = "") -> str:
     """
     获取模型路径：优先使用本地路径，如果不存在则使用HuggingFace ID
-    
+
     Args:
         model_id: HuggingFace模型ID
         local_path: Windows本地路径（F盘）
         container_path: Docker容器内路径（主要）
         workspace_path: Docker容器内备用路径
-    
+
     Returns:
         模型路径（本地路径、容器路径或HuggingFace ID）
     """
@@ -64,11 +63,11 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
     if workspace_path:
         print(f"[模型路径检测] 检查备用路径: {workspace_path}")
     print(f"[模型路径检测] 检查本地路径: {local_path}")
-    
+
     container_path_obj = Path(container_path)
     local_path_obj = Path(local_path)
     workspace_path_obj = Path(workspace_path) if workspace_path else None
-    
+
     # 检查主要容器路径
     if container_path_obj.exists():
         config_file = container_path_obj / "config.json"
@@ -77,14 +76,14 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
             return str(container_path_obj)
         else:
             print(f"[模型路径] ⚠ 容器路径存在但缺少config.json: {container_path}")
-    
+
     # 检查备用容器路径
     if workspace_path_obj and workspace_path_obj.exists():
         config_file = workspace_path_obj / "config.json"
         if config_file.exists():
             print(f"[模型路径] ✓ 使用备用容器路径: {workspace_path}")
             return str(workspace_path_obj)
-    
+
     # 检查Windows本地路径（在容器内通常不存在，但保留检查）
     if local_path_obj.exists():
         config_file = local_path_obj / "config.json"
@@ -93,7 +92,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
             return str(local_path_obj)
         else:
             print(f"[模型路径] ⚠ 本地路径存在但缺少config.json: {local_path}")
-    
+
     # 检查父目录是否存在（可能模型在子目录中）
     for parent_path in [container_path_obj.parent, workspace_path_obj.parent if workspace_path_obj else None]:
         if parent_path and parent_path.exists():
@@ -148,9 +147,9 @@ def load_causal_model(model_id: str, local_path: str = "", container_path: str =
 def generate_responses(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
-    prompts: List[str],
+    prompts: list[str],
     max_new_tokens: int = 160,
-) -> List[dict]:
+) -> list[dict]:
     device = next(model.parameters()).device
     results = []
     for prompt in prompts:
@@ -189,8 +188,8 @@ def format_guard_prompt(user_text: str) -> str:
 def run_guard_checks(
     tokenizer: AutoTokenizer,
     model: AutoModelForCausalLM,
-    user_inputs: List[str],
-) -> List[dict]:
+    user_inputs: list[str],
+) -> list[dict]:
     device = next(model.parameters()).device
     outputs = []
     for text in user_inputs:
@@ -216,8 +215,8 @@ class TestPayload:
     timestamp: str
     inference_model: str
     safety_model: str
-    generations: List[dict]
-    safety_checks: List[dict]
+    generations: list[dict]
+    safety_checks: list[dict]
 
 
 def main() -> None:

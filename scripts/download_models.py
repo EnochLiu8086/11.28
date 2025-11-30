@@ -148,7 +148,7 @@ def download_model(
             if retry_count < max_retries:
                 print(f"⚠ 下载出错，将重试: {e}")
             else:
-                    print(f"✗ 下载失败: {e}")
+                print(f"✗ 下载失败: {e}")
                 sys.exit(1)
 
     return local_dir
@@ -183,12 +183,12 @@ def verify_model(model_path: Path) -> bool:
     total_size = sum(f.stat().st_size for f in model_path.rglob("*") if f.is_file())
     total_size_gb = total_size / (1024 ** 3)
     file_count = len(list(model_path.rglob("*")))
-    
+
     print(f"✓ 模型验证通过")
     print(f"  路径: {model_path}")
     print(f"  文件数: {file_count}")
     print(f"  总大小: {total_size_gb:.2f} GB")
-    
+
     return True
 
 
@@ -200,21 +200,21 @@ def main():
 示例:
   # 下载默认的两个模型
   python {sys.argv[0]} --all
-  
+
   # 单独下载推理模型
   python {sys.argv[0]} --model {DEFAULT_MODEL}
-  
+
   # 单独下载分类器
   python {sys.argv[0]} --classifier {DEFAULT_CLASSIFIER}
-  
+
   # 自定义模型和输出目录
   python {sys.argv[0]} --model {DEFAULT_MODEL} --classifier {DEFAULT_CLASSIFIER} --output /path/to/cache
-  
+
   # 使用并发下载和验证
   python {sys.argv[0]} --all --max-workers 8 --verify
         """,
     )
-    
+
     parser.add_argument(
         "--model",
         type=str,
@@ -267,12 +267,12 @@ def main():
         action="store_true",
         help="下载后验证模型完整性",
     )
-    
+
     args = parser.parse_args()
 
     endpoint = configure_endpoint(use_official=args.use_official, mirror=args.mirror)
     print(f"HuggingFace 端点: {endpoint}")
-    
+
     # 确定要下载的模型
     models_to_download = []
     if args.all:
@@ -282,22 +282,22 @@ def main():
             models_to_download.append(args.model)
         if args.classifier:
             models_to_download.append(args.classifier)
-    
+
     if not models_to_download:
         print("错误: 请指定要下载的模型")
         print("使用 --all 下载默认模型，或使用 --model/--classifier 指定模型")
         parser.print_help()
         sys.exit(1)
-    
+
     # 确定缓存目录
     if args.output:
         cache_dir = Path(args.output)
     else:
         cache_dir = get_cache_dir()
-    
+
     print(f"模型缓存目录: {cache_dir}")
     cache_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # 下载模型
     downloaded_paths = []
     for model_id in models_to_download:
@@ -310,18 +310,18 @@ def main():
                 max_workers=args.max_workers,
             )
             downloaded_paths.append((model_id, model_path))
-            
+
             # 验证模型
             if args.verify:
                 verify_model(model_path)
-                
+
         except KeyboardInterrupt:
             print("\n\n用户中断下载")
             sys.exit(1)
         except Exception as e:
             print(f"\n✗ 下载 {model_id} 时出错: {e}")
             sys.exit(1)
-    
+
     # 总结
     print(f"\n{'='*60}")
     print("下载完成总结")
@@ -334,5 +334,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
