@@ -8,7 +8,6 @@ from __future__ import annotations
 import os
 import uuid
 from datetime import datetime, timezone
-from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -54,8 +53,8 @@ class GuardConfig(BaseModel):
 
 class PipelineRequest(BaseModel):
     prompt: str
-    context: Optional[str] = None
-    systemPrompt: Optional[str] = None
+    context: str | None = None
+    systemPrompt: str | None = None
     inferenceConfig: InferenceConfig
     guardConfig: GuardConfig
 
@@ -64,7 +63,7 @@ class GuardCategoryScore(BaseModel):
     id: str
     label: str
     score: float
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class GuardResult(BaseModel):
@@ -72,7 +71,7 @@ class GuardResult(BaseModel):
     severity: str  # "low" | "medium" | "high" | "critical"
     rationale: list[str]
     categories: list[GuardCategoryScore]
-    blockedText: Optional[str] = None
+    blockedText: str | None = None
 
 
 class PipelineResponse(BaseModel):
@@ -85,7 +84,7 @@ class PipelineResponse(BaseModel):
 class ModerationRequest(BaseModel):
     text: str
     threshold: float
-    categories: Optional[list[str]] = None
+    categories: list[str] | None = None
 
 
 @app.get("/")
@@ -164,7 +163,7 @@ async def run_pipeline(request: PipelineRequest):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Pipeline execution failed: {str(e)}") from e
 
 
 @app.post("/api/moderate", response_model=GuardResult)
@@ -180,7 +179,7 @@ async def moderate_only(request: ModerationRequest):
         )
         return GuardResult(**guard_result)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Moderation failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Moderation failed: {str(e)}") from e
 
 
 if __name__ == "__main__":
