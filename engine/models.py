@@ -10,7 +10,6 @@ import os
 import re
 import time
 from pathlib import Path
-from typing import Optional
 
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -95,11 +94,11 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
 class ModelManager:
     """管理推理模型和 Guard 模型的单例类"""
 
-    _instance: Optional[ModelManager] = None
-    _llm_tokenizer: Optional[AutoTokenizer] = None
-    _llm_model: Optional[AutoModelForCausalLM] = None
-    _guard_tokenizer: Optional[AutoTokenizer] = None
-    _guard_model: Optional[AutoModelForCausalLM] = None
+    _instance: ModelManager | None = None
+    _llm_tokenizer: AutoTokenizer | None = None
+    _llm_model: AutoModelForCausalLM | None = None
+    _guard_tokenizer: AutoTokenizer | None = None
+    _guard_model: AutoModelForCausalLM | None = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -163,7 +162,7 @@ class ModelManager:
     def generate(
         self,
         prompt: str,
-        system_prompt: Optional[str] = None,
+        system_prompt: str | None = None,
         max_tokens: int = 512,
         temperature: float = 0.7,
         top_p: float = 0.9,
@@ -238,7 +237,7 @@ class ModelManager:
         self,
         text: str,
         threshold: float = 0.5,
-        categories: Optional[list[str]] = None,
+        categories: list[str] | None = None,
     ) -> dict:
         """
         使用 Guard 模型审核文本
