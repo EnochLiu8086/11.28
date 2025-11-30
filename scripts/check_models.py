@@ -119,7 +119,7 @@ def main():
             print("  目录为空")
     else:
         print("✗ /workspace/models 不存在")
-        print(f"  提示: 如果模型在 F 盘，请确保启动容器时使用 -v F:/models:/workspace/models")
+        print("  提示: 如果模型在 F 盘，请确保启动容器时使用 -v F:/models:/workspace/models")
 
 if __name__ == "__main__":
     main()
