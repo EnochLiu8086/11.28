@@ -55,7 +55,7 @@ def test_moderate_endpoint_request_validation():
 
 
 @pytest.mark.integration
-def test_pipeline_endpoint_with_mock():
+def test_pipeline_endpoint_with_mock(mock_model_manager):
     """测试 pipeline 端点（使用 mock，不加载真实模型）"""
     request_data = {
         "prompt": "测试提示",
@@ -79,10 +79,10 @@ def test_pipeline_endpoint_with_mock():
         },
     }
     
-    # 在 CI 环境中，由于 SKIP_MODEL_LOAD=true，会返回 500
+    # 在 CI 环境中，由于使用了 mock，可能会返回 500（如果 mock 不完整）
     # 但至少验证了请求格式正确（不是 422）
     response = client.post("/api/pipeline/run", json=request_data)
-    # 接受 200（成功）或 500（模型未加载），但不接受 422（格式错误）
+    # 接受 200（成功）或 500（模型未加载/Mock 不完整），但不接受 422（格式错误）
     assert response.status_code in [200, 500]
     if response.status_code == 500:
         # 验证错误信息

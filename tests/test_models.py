@@ -5,16 +5,10 @@
 import os
 import pytest
 
-# 在 CI 环境中跳过需要真实模型的测试
-pytestmark = pytest.mark.skipif(
-    os.getenv("SKIP_MODEL_LOAD", "false").lower() == "true",
-    reason="Skipping model loading tests in CI environment",
-)
-
 
 @pytest.mark.unit
 def test_resolve_dtype():
-    """测试数据类型解析函数"""
+    """测试数据类型解析函数（不依赖模型）"""
     from engine.models import resolve_dtype
     import torch
     
@@ -24,7 +18,7 @@ def test_resolve_dtype():
 
 @pytest.mark.unit
 def test_get_model_path_fallback():
-    """测试模型路径解析函数（fallback 到 HuggingFace ID）"""
+    """测试模型路径解析函数（fallback 到 HuggingFace ID，不依赖模型）"""
     from engine.models import get_model_path
     
     # 测试使用 HuggingFace ID 作为 fallback
@@ -39,11 +33,26 @@ def test_get_model_path_fallback():
 
 @pytest.mark.unit
 def test_model_manager_singleton():
-    """测试 ModelManager 单例模式"""
+    """测试 ModelManager 单例模式（不依赖模型加载）"""
     from engine.models import ModelManager
     
     manager1 = ModelManager()
     manager2 = ModelManager()
     assert manager1 is manager2
     assert manager1 is not None
+
+
+@pytest.mark.integration
+@pytest.mark.skipif(
+    os.getenv("SKIP_MODEL_LOAD", "false").lower() == "true",
+    reason="Skipping model loading tests in CI environment",
+)
+def test_model_manager_load_llm():
+    """测试模型加载（需要真实模型，只在本地运行）"""
+    from engine.models import ModelManager
+    
+    manager = ModelManager()
+    tokenizer, model = manager.load_llm()
+    assert tokenizer is not None
+    assert model is not None
 
