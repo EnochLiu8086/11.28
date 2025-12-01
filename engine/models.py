@@ -85,7 +85,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
                 if item.is_dir() and (item / "config.json").exists():
                     print(f"[ModelManager] 在父目录中找到模型: {item}")
                     return str(item)
-    
+
     # 否则使用HuggingFace ID
     print(f"[ModelManager] 本地路径不存在，将使用HuggingFace ID: {model_id}")
     return model_id
@@ -109,7 +109,7 @@ class ModelManager:
         """加载推理模型（懒加载）"""
         if self._llm_tokenizer is None or self._llm_model is None:
             torch_dtype = resolve_dtype()
-            
+
             # 确定实际使用的模型路径
             model_path = get_model_path(
                 LLM_ID,
@@ -117,7 +117,7 @@ class ModelManager:
                 LLM_CONTAINER_PATH,
                 LLM_WORKSPACE_PATH
             )
-            
+
             print(f"[ModelManager] Loading LLM: {model_path} (dtype: {torch_dtype})")
             self._llm_tokenizer = AutoTokenizer.from_pretrained(model_path)
             if self._llm_tokenizer.pad_token is None:
@@ -136,7 +136,7 @@ class ModelManager:
         """加载 Guard 模型（懒加载）"""
         if self._guard_tokenizer is None or self._guard_model is None:
             torch_dtype = resolve_dtype()
-            
+
             # 确定实际使用的模型路径
             model_path = get_model_path(
                 GUARD_ID,
@@ -144,7 +144,7 @@ class ModelManager:
                 GUARD_CONTAINER_PATH,
                 GUARD_WORKSPACE_PATH
             )
-            
+
             print(f"[ModelManager] Loading Guard: {model_path} (dtype: {torch_dtype})")
             self._guard_tokenizer = AutoTokenizer.from_pretrained(model_path)
             if self._guard_tokenizer.pad_token is None:
@@ -379,4 +379,5 @@ class ModelManager:
             "categories": category_scores,
             "blockedText": text if verdict == "block" else None,
         }
+
 
