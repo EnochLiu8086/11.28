@@ -42,41 +42,41 @@ def resolve_dtype() -> torch.dtype:
 def get_model_path(model_id: str, local_path: str, container_path: str, workspace_path: str = "") -> str:
     """
     获取模型路径：优先使用本地路径，如果不存在则使用HuggingFace ID
-    
+
     Args:
         model_id: HuggingFace模型ID
         local_path: Windows本地路径（F盘）
         container_path: Docker容器内路径（主要）
         workspace_path: Docker容器内备用路径
-    
+
     Returns:
         模型路径（本地路径、容器路径或HuggingFace ID）
     """
     container_path_obj = Path(container_path)
     local_path_obj = Path(local_path)
     workspace_path_obj = Path(workspace_path) if workspace_path else None
-    
+
     # 检查主要容器路径
     if container_path_obj.exists():
         config_file = container_path_obj / "config.json"
         if config_file.exists():
             print(f"[ModelManager] 使用容器内路径: {container_path}")
             return str(container_path_obj)
-    
+
     # 检查备用容器路径
     if workspace_path_obj and workspace_path_obj.exists():
         config_file = workspace_path_obj / "config.json"
         if config_file.exists():
             print(f"[ModelManager] 使用备用容器路径: {workspace_path}")
             return str(workspace_path_obj)
-    
+
     # 检查Windows本地路径（在容器内通常不存在，但保留检查）
     if local_path_obj.exists():
         config_file = local_path_obj / "config.json"
         if config_file.exists():
             print(f"[ModelManager] 使用本地路径: {local_path}")
             return str(local_path_obj)
-    
+
     # 检查父目录是否存在（可能模型在子目录中）
     for parent_path in [container_path_obj.parent, workspace_path_obj.parent if workspace_path_obj else None]:
         if parent_path and parent_path.exists():
@@ -85,7 +85,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
                 if item.is_dir() and (item / "config.json").exists():
                     print(f"[ModelManager] 在父目录中找到模型: {item}")
                     return str(item)
-    
+
     # 否则使用HuggingFace ID
     print(f"[ModelManager] 本地路径不存在，将使用HuggingFace ID: {model_id}")
     return model_id
@@ -109,7 +109,7 @@ class ModelManager:
         """加载推理模型（懒加载）"""
         if self._llm_tokenizer is None or self._llm_model is None:
             torch_dtype = resolve_dtype()
-            
+
             # 确定实际使用的模型路径
             model_path = get_model_path(
                 LLM_ID,
@@ -117,7 +117,7 @@ class ModelManager:
                 LLM_CONTAINER_PATH,
                 LLM_WORKSPACE_PATH
             )
-            
+
             print(f"[ModelManager] Loading LLM: {model_path} (dtype: {torch_dtype})")
             self._llm_tokenizer = AutoTokenizer.from_pretrained(model_path)
             if self._llm_tokenizer.pad_token is None:
@@ -136,7 +136,7 @@ class ModelManager:
         """加载 Guard 模型（懒加载）"""
         if self._guard_tokenizer is None or self._guard_model is None:
             torch_dtype = resolve_dtype()
-            
+
             # 确定实际使用的模型路径
             model_path = get_model_path(
                 GUARD_ID,
@@ -144,7 +144,7 @@ class ModelManager:
                 GUARD_CONTAINER_PATH,
                 GUARD_WORKSPACE_PATH
             )
-            
+
             print(f"[ModelManager] Loading Guard: {model_path} (dtype: {torch_dtype})")
             self._guard_tokenizer = AutoTokenizer.from_pretrained(model_path)
             if self._guard_tokenizer.pad_token is None:
