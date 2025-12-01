@@ -183,7 +183,6 @@ def verify_model(model_path: Path) -> bool:
     total_size = sum(f.stat().st_size for f in model_path.rglob("*") if f.is_file())
     total_size_gb = total_size / (1024 ** 3)
     file_count = len(list(model_path.rglob("*")))
-
     print("✓ 模型验证通过")
     print(f"  路径: {model_path}")
     print(f"  文件数: {file_count}")
