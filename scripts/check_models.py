@@ -43,7 +43,7 @@ def check_model_path(path: str, name: str):
             items = list(path_obj.iterdir())
             print(f"  目录包含 {len(items)} 个项目")
             print(f"  前5项: {[item.name for item in items[:5]]}")
-            
+
             # 检查模型文件
             safetensors = list(path_obj.glob("*.safetensors"))
             if safetensors:
@@ -107,7 +107,7 @@ def main():
             print("  目录为空")
     else:
         print("✗ /cache/models 不存在")
-    
+
     # 检查 /workspace/models
     workspace_models = Path("/workspace/models")
     if workspace_models.exists():
@@ -123,4 +123,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
