@@ -104,7 +104,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
                 if item.is_dir() and (item / "config.json").exists():
                     print(f"[模型路径] ✓ 在父目录中找到模型: {item}")
                     return str(item)
-    
+
     # 否则使用HuggingFace ID
     print(f"[模型路径] ✗ 本地路径不存在，将使用HuggingFace ID: {model_id}")
     print(f"  提示: 请确保模型已挂载到 {container_path} 或 {workspace_path} 或 {local_path}")
@@ -221,8 +221,8 @@ class TestPayload:
 
 def main() -> None:
     llm_tokenizer, llm_model = load_causal_model(
-        LLM_ID, 
-        local_path=LLM_LOCAL_PATH, 
+        LLM_ID,
+        local_path=LLM_LOCAL_PATH,
         container_path=LLM_CONTAINER_PATH,
         workspace_path=LLM_WORKSPACE_PATH
     )
@@ -263,4 +263,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
 
