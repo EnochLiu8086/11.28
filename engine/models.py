@@ -263,13 +263,13 @@ class ModelManager:
             )
 
         response = tokenizer.decode(output_ids[0], skip_special_tokens=True).strip()
-        
+
         # 解析 Guard 响应
         # 首先尝试找到完整的 JSON 对象（支持嵌套）
         verdict_raw = "UNSAFE"
         reason = ""
         json_parsed = False
-        
+
         # 方法1: 尝试直接解析整个响应
         try:
             guard_json = json.loads(response)
@@ -291,7 +291,7 @@ class ModelManager:
                         if brace_count == 0:
                             end_idx = i + 1
                             break
-                
+
                 if end_idx > start_idx:
                     json_str = response[start_idx:end_idx]
                     try:
@@ -301,7 +301,7 @@ class ModelManager:
                         json_parsed = True
                     except json.JSONDecodeError:
                         pass
-        
+
         # 方法3: 如果 JSON 解析失败，尝试从文本中提取 verdict
         if not json_parsed:
             response_upper = response.upper()
@@ -338,18 +338,18 @@ class ModelManager:
                 # 默认情况：无法确定，但提供原始响应的一部分
                 verdict_raw = "UNSAFE"
                 reason = f"Guard response (unable to parse): {response[:150]}"
-        
+
         # 确保 reason 不为空
         if not reason:
             reason = "Guard classification completed"
 
         # 转换为前端需要的格式
         is_safe = verdict_raw == "SAFE"
-        
+
         # 计算风险分数（基于 verdict 和 threshold）
         # 如果 UNSAFE，分数应该高于 threshold
         risk_score = 0.3 if is_safe else max(threshold + 0.2, 0.7)
-        
+
         # 确定严重程度
         if is_safe or risk_score < threshold:
             severity = "low"
