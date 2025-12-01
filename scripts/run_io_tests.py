@@ -48,13 +48,13 @@ def resolve_dtype() -> torch.dtype:
 def get_model_path(model_id: str, local_path: str, container_path: str, workspace_path: str = "") -> str:
     """
     获取模型路径：优先使用本地路径，如果不存在则使用HuggingFace ID
-
+    
     Args:
         model_id: HuggingFace模型ID
         local_path: Windows本地路径（F盘）
         container_path: Docker容器内路径（主要）
         workspace_path: Docker容器内备用路径
-
+    
     Returns:
         模型路径（本地路径、容器路径或HuggingFace ID）
     """
@@ -63,11 +63,11 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
     if workspace_path:
         print(f"[模型路径检测] 检查备用路径: {workspace_path}")
     print(f"[模型路径检测] 检查本地路径: {local_path}")
-
+    
     container_path_obj = Path(container_path)
     local_path_obj = Path(local_path)
     workspace_path_obj = Path(workspace_path) if workspace_path else None
-
+    
     # 检查主要容器路径
     if container_path_obj.exists():
         config_file = container_path_obj / "config.json"
@@ -76,14 +76,14 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
             return str(container_path_obj)
         else:
             print(f"[模型路径] ⚠ 容器路径存在但缺少config.json: {container_path}")
-
+    
     # 检查备用容器路径
     if workspace_path_obj and workspace_path_obj.exists():
         config_file = workspace_path_obj / "config.json"
         if config_file.exists():
             print(f"[模型路径] ✓ 使用备用容器路径: {workspace_path}")
             return str(workspace_path_obj)
-
+    
     # 检查Windows本地路径（在容器内通常不存在，但保留检查）
     if local_path_obj.exists():
         config_file = local_path_obj / "config.json"
@@ -92,7 +92,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
             return str(local_path_obj)
         else:
             print(f"[模型路径] ⚠ 本地路径存在但缺少config.json: {local_path}")
-
+    
     # 检查父目录是否存在（可能模型在子目录中）
     for parent_path in [container_path_obj.parent, workspace_path_obj.parent if workspace_path_obj else None]:
         if parent_path and parent_path.exists():
@@ -104,7 +104,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
                 if item.is_dir() and (item / "config.json").exists():
                     print(f"[模型路径] ✓ 在父目录中找到模型: {item}")
                     return str(item)
-
+    
     # 否则使用HuggingFace ID
     print(f"[模型路径] ✗ 本地路径不存在，将使用HuggingFace ID: {model_id}")
     print(f"  提示: 请确保模型已挂载到 {container_path} 或 {workspace_path} 或 {local_path}")
@@ -115,7 +115,7 @@ def get_model_path(model_id: str, local_path: str, container_path: str, workspac
 def load_causal_model(model_id: str, local_path: str = "", container_path: str = "", workspace_path: str = "") -> tuple[AutoTokenizer, AutoModelForCausalLM]:
     """
     加载因果语言模型
-
+    
     Args:
         model_id: HuggingFace模型ID（作为fallback）
         local_path: Windows本地路径（F盘）
@@ -123,13 +123,13 @@ def load_causal_model(model_id: str, local_path: str = "", container_path: str =
         workspace_path: Docker容器内备用路径
     """
     torch_dtype = resolve_dtype()
-
+    
     # 确定实际使用的模型路径
     actual_path = get_model_path(model_id, local_path, container_path, workspace_path) if (local_path or container_path) else model_id
-
+    
     print(f"[加载模型] 使用路径: {actual_path}")
     print(f"[加载模型] 数据类型: {torch_dtype}")
-
+    
     # 修复deprecation警告：使用dtype代替torch_dtype
     tokenizer = AutoTokenizer.from_pretrained(actual_path)
     if tokenizer.pad_token is None:
@@ -221,8 +221,8 @@ class TestPayload:
 
 def main() -> None:
     llm_tokenizer, llm_model = load_causal_model(
-        LLM_ID,
-        local_path=LLM_LOCAL_PATH,
+        LLM_ID, 
+        local_path=LLM_LOCAL_PATH, 
         container_path=LLM_CONTAINER_PATH,
         workspace_path=LLM_WORKSPACE_PATH
     )

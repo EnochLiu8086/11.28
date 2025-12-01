@@ -78,7 +78,7 @@ def test_pipeline_endpoint_with_mock(mock_model_manager):
             "categories": ["violence"],
         },
     }
-    
+
     # 在 CI 环境中，由于使用了 mock，可能会返回 500（如果 mock 不完整）
     # 但至少验证了请求格式正确（不是 422）
     response = client.post("/api/pipeline/run", json=request_data)

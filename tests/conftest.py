@@ -22,7 +22,7 @@ def mock_model_loading():
             mock_tok.encode.return_value = [1, 2, 3]  # 用于 stop_sequences
             mock_tok.return_value = {"input_ids": Mock(shape=[1, 10])}  # 用于 tokenizer 调用
             mock_tokenizer.return_value = mock_tok
-            
+
             # 创建 mock model
             mock_mod = Mock()
             mock_mod.eval.return_value = None
@@ -38,7 +38,7 @@ def mock_model_loading():
             mock_output_ids.__getitem__.return_value = [1, 2, 3, 4, 5]
             mock_mod.generate.return_value = mock_output_ids
             mock_model.return_value = mock_mod
-            
+
             yield
     else:
         yield
@@ -48,7 +48,7 @@ def mock_model_loading():
 def mock_model_manager():
     """提供 mock 的 ModelManager，避免加载真实模型"""
     from engine.models import ModelManager
-    
+
     # 创建 mock 返回值
     mock_tokenizer = Mock()
     mock_tokenizer.pad_token = None
@@ -58,7 +58,7 @@ def mock_model_manager():
     mock_tokenizer.encode.return_value = [1, 2, 3]
     mock_tokenizer.return_value = {"input_ids": Mock(shape=[1, 10])}
     mock_tokenizer.decode.return_value = "Mocked output text"
-    
+
     mock_model = Mock()
     mock_model.eval.return_value = None
     mock_param = Mock()
@@ -68,7 +68,7 @@ def mock_model_manager():
     mock_output_ids.shape = [1, 20]
     mock_output_ids.__getitem__.return_value = [1, 2, 3, 4, 5]
     mock_model.generate.return_value = mock_output_ids
-    
+
     with patch.object(ModelManager, "load_llm", return_value=(mock_tokenizer, mock_model)), \
          patch.object(ModelManager, "load_guard", return_value=(mock_tokenizer, mock_model)), \
          patch.object(ModelManager, "generate", return_value=("Mocked output", 10, 20, 100.0)), \

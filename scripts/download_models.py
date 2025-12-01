@@ -36,7 +36,7 @@ def get_cache_dir() -> Path:
     local_model_path = os.getenv("LOCAL_MODEL_PATH")
     if local_model_path:
         return Path(local_model_path)
-
+    
     cache_dir = os.getenv("HF_HOME") or os.getenv("TRANSFORMERS_CACHE")
     if cache_dir:
         return Path(cache_dir) / "models"
@@ -72,25 +72,25 @@ def download_model(
 ) -> Path:
     """
     下载单个模型
-
+    
     Args:
         model_id: HuggingFace 模型 ID
         cache_dir: 缓存目录
         token: HuggingFace token（可选，优先使用环境变量）
         max_retries: 最大重试次数
         max_workers: 最大并发下载数
-
+    
     Returns:
         模型本地路径
     """
     print(f"\n{'='*60}")
     print(f"开始下载模型: {model_id}")
     print(f"{'='*60}")
-
+    
     # 获取 token
     if not token:
         token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
-
+    
     # 如果 token 存在，尝试登录
     if token:
         try:
@@ -98,19 +98,19 @@ def download_model(
             print("✓ 已使用 token 登录 HuggingFace")
         except Exception as e:
             print(f"⚠ 登录失败，将尝试匿名下载: {e}")
-
+    
     # 构建本地目录路径
     local_dir = cache_dir / model_id.replace("/", "_")
-
+    
     # 检查是否已存在
     if local_dir.exists() and any(local_dir.iterdir()):
         print(f"✓ 模型目录已存在: {local_dir}")
         print("  跳过下载，使用现有模型")
         return local_dir
-
+    
     # 创建缓存目录
     cache_dir.mkdir(parents=True, exist_ok=True)
-
+    
     # 下载模型
     retry_count = 0
     while retry_count < max_retries:
@@ -126,7 +126,7 @@ def download_model(
             )
             print(f"✓ 模型下载完成: {local_dir}")
             return local_dir
-
+            
         except HfHubHTTPError as e:
             if e.response.status_code == 401:
                 print("✗ 认证失败: 请检查 HuggingFace token 和模型访问权限")
@@ -150,45 +150,45 @@ def download_model(
             else:
                 print(f"✗ 下载失败: {e}")
                 sys.exit(1)
-
+    
     return local_dir
 
 
 def verify_model(model_path: Path) -> bool:
     """
     验证模型完整性
-
+    
     Args:
         model_path: 模型本地路径
-
+    
     Returns:
         是否验证通过
     """
     if not model_path.exists():
         print(f"✗ 模型路径不存在: {model_path}")
         return False
-
+    
     # 检查关键文件
     required_files = ["config.json"]
     missing_files = []
     for file in required_files:
         if not (model_path / file).exists():
             missing_files.append(file)
-
+    
     if missing_files:
         print(f"⚠ 缺少关键文件: {', '.join(missing_files)}")
         return False
-
+    
     # 统计文件大小
     total_size = sum(f.stat().st_size for f in model_path.rglob("*") if f.is_file())
     total_size_gb = total_size / (1024 ** 3)
     file_count = len(list(model_path.rglob("*")))
-
+    
     print("✓ 模型验证通过")
     print(f"  路径: {model_path}")
     print(f"  文件数: {file_count}")
     print(f"  总大小: {total_size_gb:.2f} GB")
-
+    
     return True
 
 
@@ -200,21 +200,21 @@ def main():
 示例:
   # 下载默认的两个模型
   python {sys.argv[0]} --all
-
+  
   # 单独下载推理模型
   python {sys.argv[0]} --model {DEFAULT_MODEL}
-
+  
   # 单独下载分类器
   python {sys.argv[0]} --classifier {DEFAULT_CLASSIFIER}
-
+  
   # 自定义模型和输出目录
   python {sys.argv[0]} --model {DEFAULT_MODEL} --classifier {DEFAULT_CLASSIFIER} --output /path/to/cache
-
+  
   # 使用并发下载和验证
   python {sys.argv[0]} --all --max-workers 8 --verify
         """,
     )
-
+    
     parser.add_argument(
         "--model",
         type=str,
@@ -267,12 +267,12 @@ def main():
         action="store_true",
         help="下载后验证模型完整性",
     )
-
+    
     args = parser.parse_args()
 
     endpoint = configure_endpoint(use_official=args.use_official, mirror=args.mirror)
     print(f"HuggingFace 端点: {endpoint}")
-
+    
     # 确定要下载的模型
     models_to_download = []
     if args.all:
@@ -282,22 +282,22 @@ def main():
             models_to_download.append(args.model)
         if args.classifier:
             models_to_download.append(args.classifier)
-
+    
     if not models_to_download:
         print("错误: 请指定要下载的模型")
         print("使用 --all 下载默认模型，或使用 --model/--classifier 指定模型")
         parser.print_help()
         sys.exit(1)
-
+    
     # 确定缓存目录
     if args.output:
         cache_dir = Path(args.output)
     else:
         cache_dir = get_cache_dir()
-
+    
     print(f"模型缓存目录: {cache_dir}")
     cache_dir.mkdir(parents=True, exist_ok=True)
-
+    
     # 下载模型
     downloaded_paths = []
     for model_id in models_to_download:
@@ -310,18 +310,18 @@ def main():
                 max_workers=args.max_workers,
             )
             downloaded_paths.append((model_id, model_path))
-
+            
             # 验证模型
             if args.verify:
                 verify_model(model_path)
-
+                
         except KeyboardInterrupt:
             print("\n\n用户中断下载")
             sys.exit(1)
         except Exception as e:
             print(f"\n✗ 下载 {model_id} 时出错: {e}")
             sys.exit(1)
-
+    
     # 总结
     print(f"\n{'='*60}")
     print("下载完成总结")

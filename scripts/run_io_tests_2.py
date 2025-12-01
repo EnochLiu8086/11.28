@@ -129,7 +129,7 @@ class TestPayload:
 def main() -> None:
     # Load main LLM and run inference tests with English prompts
     llm_tokenizer, llm_model = load_causal_model(LLM_ID)
-
+    
     # English prompts targeting different reasoning capabilities
     inference_prompts = [
         "Explain the difference between quantum computing and classical computing in 3-4 sentences, focusing on how they process information.",
@@ -141,7 +141,7 @@ def main() -> None:
         "Create a logical argument for or against the implementation of a universal basic income in a developed country.",
         "Predict how artificial intelligence might transform the healthcare industry in the next 10 years, including both benefits and risks."
     ]
-
+    
     generations = generate_responses(llm_tokenizer, llm_model, inference_prompts)
 
     # Free memory before loading guard model

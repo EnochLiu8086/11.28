@@ -22,28 +22,28 @@ def check_model_path(path: str, name: str):
     print(f"检查 {name}")
     print(f"{'='*60}")
     print(f"路径: {path}")
-
+    
     path_obj = Path(path)
-
+    
     if path_obj.exists():
         print("✓ 路径存在")
-
+        
         # 检查是否是目录
         if path_obj.is_dir():
             print("✓ 是目录")
-
+            
             # 检查关键文件
             config_file = path_obj / "config.json"
             if config_file.exists():
                 print("✓ config.json 存在")
             else:
                 print("✗ config.json 不存在")
-
+            
             # 列出目录内容
             items = list(path_obj.iterdir())
             print(f"  目录包含 {len(items)} 个项目")
             print(f"  前5项: {[item.name for item in items[:5]]}")
-
+            
             # 检查模型文件
             safetensors = list(path_obj.glob("*.safetensors"))
             if safetensors:
@@ -56,7 +56,7 @@ def check_model_path(path: str, name: str):
             print("✗ 不是目录")
     else:
         print("✗ 路径不存在")
-
+        
         # 检查父目录
         parent = path_obj.parent
         if parent.exists():
@@ -68,20 +68,20 @@ def check_model_path(path: str, name: str):
 def main():
     print("模型路径检查工具")
     print("="*60)
-
+    
     # 检查容器内路径（主要路径）
     check_model_path(LLM_CONTAINER_PATH, "推理模型（容器内 - /cache）")
     check_model_path(GUARD_CONTAINER_PATH, "安全分类器（容器内 - /cache）")
-
+    
     # 检查备用路径
     check_model_path(LLM_WORKSPACE_PATH, "推理模型（容器内 - /workspace/models）")
     check_model_path(GUARD_WORKSPACE_PATH, "安全分类器（容器内 - /workspace/models）")
-
+    
     # 检查本地路径（如果不在容器内）
     if not Path("/.dockerenv").exists() and not Path("/workspace").exists():
         check_model_path(LLM_LOCAL_PATH, "推理模型（本地）")
         check_model_path(GUARD_LOCAL_PATH, "安全分类器（本地）")
-
+    
     # 检查环境变量
     print(f"\n{'='*60}")
     print("环境变量")
@@ -90,12 +90,12 @@ def main():
     print(f"GUARD_LOCAL_PATH: {os.getenv('GUARD_LOCAL_PATH', '未设置')}")
     print(f"LLM_CONTAINER_PATH: {os.getenv('LLM_CONTAINER_PATH', '未设置')}")
     print(f"GUARD_CONTAINER_PATH: {os.getenv('GUARD_CONTAINER_PATH', '未设置')}")
-
+    
     # 检查挂载点
     print(f"\n{'='*60}")
     print("挂载点检查")
     print(f"{'='*60}")
-
+    
     # 检查 /cache/models
     cache_models = Path("/cache/models")
     if cache_models.exists():
@@ -107,7 +107,7 @@ def main():
             print("  目录为空")
     else:
         print("✗ /cache/models 不存在")
-
+    
     # 检查 /workspace/models
     workspace_models = Path("/workspace/models")
     if workspace_models.exists():
